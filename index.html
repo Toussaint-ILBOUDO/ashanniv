@@ -1,144 +1,798 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#030712">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="description" content="Une expérience céleste et interactive pour les 23 ans d'Ashley ✨">
-  <title>Joyeux 23ᵉ Anniversaire, Ashley ✨</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#030712">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="Une expérience céleste et interactive pour les 23 ans d'Ashley ✨">
+<title>Joyeux 23ᵉ Anniversaire, Ashley ✨</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✨</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Favicon (étoile inline, aucun fichier nécessaire) -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✨</text></svg>">
+<style>
+/* ============================================================
+   TOKENS
+   ============================================================ */
+:root{
+  --bg:#030712;
+  --bg-deep:#010308;
+  --ink:#f5efe1;
+  --ink-dim:#c9c2b4;
+  --gold:#e6c581;
+  --gold-soft:#f1dca3;
+  --gold-deep:#a97d3a;
+  --violet:#4d3d8f;
+  --violet-deep:#221a45;
+  --glass:rgba(18,16,36,.46);
+  --glass-border:rgba(230,197,129,.22);
+  --serif:'Cormorant Garamond',serif;
+  --display:'Cinzel',serif;
+  --sans:'Plus Jakarta Sans',sans-serif;
+}
 
-  <!-- Typographies : Cinzel (titres), Cormorant Garamond (poème), Plus Jakarta Sans (texte) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;height:100%;background:var(--bg);overflow:hidden;}
+body{
+  font-family:var(--sans);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  position:relative;
+  touch-action:manipulation;
+}
 
-  <link rel="stylesheet" href="css/style.css">
+/* ============================================================
+   BACKGROUND LAYERS
+   ============================================================ */
+#sky{position:fixed;inset:0;width:100%;height:100%;z-index:0;background:
+  radial-gradient(ellipse at 50% 20%, #0b1130 0%, var(--bg) 55%, var(--bg-deep) 100%);}
+
+.nebula{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden;mix-blend-mode:screen;opacity:.55;}
+.aur{position:absolute;border-radius:50%;filter:blur(60px);opacity:.35;animation:drift 22s ease-in-out infinite;}
+.a1{width:46vw;height:46vw;left:-10vw;top:-8vw;background:radial-gradient(circle,var(--violet) 0%,transparent 70%);animation-duration:26s;}
+.a2{width:38vw;height:38vw;right:-8vw;top:20vh;background:radial-gradient(circle,#7a3f7a 0%,transparent 70%);animation-duration:32s;animation-delay:-6s;}
+.a3{width:50vw;height:50vw;left:20vw;bottom:-20vh;background:radial-gradient(circle,var(--gold-deep) 0%,transparent 72%);opacity:.18;animation-duration:38s;animation-delay:-12s;}
+@keyframes drift{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(3vw,-2vw) scale(1.08);}}
+
+#vignette{position:fixed;inset:0;z-index:2;pointer-events:none;
+  background:radial-gradient(ellipse at center, transparent 40%, rgba(1,2,6,.75) 100%);}
+
+#pulse23{position:fixed;left:50%;top:50%;width:60vmin;height:60vmin;z-index:1;pointer-events:none;
+  transform:translate(-50%,-50%);border-radius:50%;opacity:0;
+  background:radial-gradient(circle, rgba(230,197,129,.28) 0%, transparent 68%);
+  animation:pulse23 5s ease-in-out infinite;}
+@keyframes pulse23{0%,100%{transform:translate(-50%,-50%) scale(.9);opacity:.15;}50%{transform:translate(-50%,-50%) scale(1.08);opacity:.4;}}
+
+#glowlayer{position:fixed;left:0;right:0;bottom:0;height:0;z-index:1;pointer-events:none;
+  background:linear-gradient(to top, rgba(230,197,129,.22), transparent);
+  transition:height 3.2s ease-out;}
+#glowlayer.on{height:55vh;}
+
+/* ============================================================
+   STAGE / SCREENS
+   ============================================================ */
+#stage{position:relative;z-index:5;height:100%;width:100%;}
+.screen{
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:6vh 6vw;text-align:center;
+  transition:opacity 1.1s ease, transform 1.1s ease;
+}
+.screen.hidden{opacity:0;pointer-events:none;transform:scale(.985);}
+
+/* ---------- Boot ---------- */
+#screen-boot{cursor:pointer;}
+.boot-glow{width:14px;height:14px;border-radius:50%;background:var(--gold-soft);
+  box-shadow:0 0 24px 10px rgba(241,220,163,.55);animation:heartbeat 1.8s ease-in-out infinite;margin-bottom:2.6rem;}
+@keyframes heartbeat{0%,100%{transform:scale(1);opacity:.7;}45%{transform:scale(1.6);opacity:1;}}
+.boot-text{font-family:var(--sans);font-weight:300;letter-spacing:.04em;font-size:clamp(.95rem,2.4vw,1.15rem);
+  color:var(--ink-dim);max-width:26em;opacity:0;animation:fadein 2.4s ease forwards 1.6s;}
+.boot-sub{font-family:var(--serif);font-style:italic;font-size:clamp(1.1rem,3vw,1.5rem);color:var(--gold-soft);
+  margin-top:1rem;opacity:0;animation:fadein 2.4s ease forwards 3.2s;}
+@keyframes fadein{to{opacity:1;}}
+
+/* ---------- Intro ---------- */
+.intro-wrap{max-width:44em;}
+.intro-line{font-family:var(--serif);font-style:italic;font-weight:500;
+  font-size:clamp(1.4rem,4.6vw,2.6rem);line-height:1.5;color:var(--ink);min-height:2.4em;}
+.caret{display:inline-block;width:2px;height:.9em;background:var(--gold-soft);margin-left:2px;
+  vertical-align:-.1em;animation:blink 1s steps(1) infinite;}
+.caret.off{opacity:0;}
+@keyframes blink{50%{opacity:0;}}
+
+/* ---------- Poem card ---------- */
+.glass{
+  background:var(--glass);border:1px solid var(--glass-border);border-radius:22px;
+  backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);
+  box-shadow:0 30px 80px -20px rgba(0,0,0,.65), inset 0 1px 0 rgba(255,255,255,.05);
+}
+#poem-card{width:min(640px,92vw);padding:clamp(1.6rem,4vw,3rem) clamp(1.6rem,5vw,3.4rem);position:relative;overflow:hidden;}
+.card-head{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1.4rem;}
+.count{font-family:var(--sans);font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);}
+#poem-title{font-family:var(--display);font-weight:600;font-size:clamp(1.1rem,3vw,1.5rem);
+  color:var(--gold-soft);letter-spacing:.02em;margin:0;}
+.card-body{font-family:var(--serif);font-size:clamp(1.05rem,2.6vw,1.35rem);line-height:1.85;color:var(--ink);
+  min-height:8em;text-align:left;}
+.card-body p{margin:0 0 .9em 0;opacity:0;transform:translateY(10px);animation:lineIn .9s ease forwards;}
+@keyframes lineIn{to{opacity:1;transform:translateY(0);}}
+.card-foot{margin-top:1.8rem;display:flex;justify-content:flex-end;}
+
+.btn{
+  font-family:var(--sans);font-weight:600;font-size:.9rem;letter-spacing:.03em;
+  color:var(--bg-deep);background:linear-gradient(135deg,var(--gold-soft),var(--gold-deep));
+  border:none;border-radius:999px;padding:.85rem 1.7rem;cursor:pointer;
+  box-shadow:0 10px 26px -8px rgba(230,197,129,.55);
+  transition:transform .25s ease, box-shadow .25s ease;
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 14px 32px -8px rgba(230,197,129,.7);}
+.btn:active{transform:translateY(0);}
+.btn-arrow{display:inline-block;transition:transform .25s ease;}
+.btn:hover .btn-arrow{transform:translateX(4px);}
+.btn.replay{background:transparent;color:var(--gold-soft);border:1px solid var(--glass-border);box-shadow:none;}
+
+.flower{position:absolute;left:50%;bottom:-2%;width:180px;height:180px;transform:translateX(-50%) scale(.2);
+  opacity:0;pointer-events:none;}
+.flower.show{animation:bloom 3.4s ease forwards;}
+@keyframes bloom{0%{opacity:0;transform:translateX(-50%) scale(.15) rotate(-15deg);}
+  60%{opacity:.5;}100%{opacity:.32;transform:translateX(-50%) scale(1) rotate(0deg);}}
+.flower .petals ellipse{fill:var(--gold);opacity:.55;}
+.flower .core{fill:var(--gold-soft);}
+
+.spark-word{position:relative;color:var(--gold-soft);}
+.spark-word::after{content:'';position:absolute;left:-4%;right:-4%;top:-8%;bottom:-8%;border-radius:8px;
+  background:radial-gradient(ellipse, rgba(241,220,163,.35), transparent 70%);opacity:0;
+  animation:shimmer 2.6s ease-in-out .4s 1;}
+@keyframes shimmer{0%,100%{opacity:0;}45%{opacity:1;}}
+
+.star-glide{position:absolute;pointer-events:none;color:var(--gold-soft);font-size:.9rem;top:8%;
+  animation:starDescend 2.6s ease forwards;}
+@keyframes starDescend{0%{transform:translateY(-40px) scale(.4);opacity:0;}
+  60%{opacity:1;}100%{transform:translateY(0) scale(1);opacity:.9;}}
+
+.cross-star{position:absolute;width:2px;height:2px;background:var(--gold-soft);border-radius:50%;
+  box-shadow:0 0 6px 2px rgba(241,220,163,.8);opacity:0;pointer-events:none;}
+.cross-star.run{animation:crossFly 1.8s linear forwards;}
+@keyframes crossFly{0%{opacity:0;}8%{opacity:1;}92%{opacity:1;}100%{opacity:0;transform:translate(var(--dx),var(--dy));}}
+
+/* ---------- Final ---------- */
+#final-card{width:min(620px,92vw);padding:clamp(1.8rem,4vw,3rem) clamp(1.6rem,5vw,3rem);}
+.f-line{font-family:var(--serif);font-style:italic;font-size:clamp(1rem,2.6vw,1.25rem);
+  color:var(--ink-dim);margin:0 0 .5rem 0;line-height:1.6;}
+.photos{display:flex;justify-content:center;gap:1.4rem;margin:1.8rem 0;flex-wrap:wrap;}
+.polaroid{background:#f5efe1;padding:.5rem .5rem 1.1rem;border-radius:4px;box-shadow:0 18px 34px -12px rgba(0,0,0,.6);
+  transform:rotate(-4deg);width:132px;}
+.polaroid.p2{transform:rotate(3deg);}
+.polaroid img{width:100%;height:150px;object-fit:cover;border-radius:2px;display:block;background:#1a1a1a;}
+.polaroid figcaption{font-family:var(--serif);font-style:italic;color:#3a3428;font-size:.72rem;
+  text-align:center;margin-top:.5rem;}
+.f-hero{font-family:var(--display);font-weight:600;font-size:clamp(1.5rem,4.4vw,2.2rem);
+  color:var(--gold-soft);margin:1.6rem 0 .4rem;line-height:1.35;}
+.f-sign{font-family:var(--sans);font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin:0 0 1.4rem;}
+.f-foot{font-family:var(--serif);font-style:italic;color:var(--ink-dim);font-size:.98rem;margin:0 0 1.8rem;}
+
+/* ---------- 23 canvas host ---------- */
+#num-canvas{position:fixed;inset:0;z-index:4;pointer-events:none;}
+
+/* ---------- Hint / Fallback ---------- */
+#hint{position:fixed;bottom:5vh;left:0;right:0;z-index:8;text-align:center;
+  font-family:var(--sans);font-size:.78rem;letter-spacing:.1em;color:var(--ink-dim);
+  opacity:.75;animation:hintPulse 2.4s ease-in-out infinite;}
+@keyframes hintPulse{0%,100%{opacity:.35;}50%{opacity:.85;}}
+#hint.hidden{display:none;}
+
+.fallback-form{position:fixed;inset:0;z-index:20;background:var(--bg);display:flex;
+  align-items:center;justify-content:center;padding:8vw;}
+.fallback-form.hidden{display:none;}
+
+#err-toast{position:fixed;bottom:1.2rem;left:50%;transform:translateX(-50%);z-index:40;
+  background:#2a1414;color:#f4b8b8;font-family:var(--sans);font-size:.78rem;padding:.6rem 1rem;
+  border-radius:8px;opacity:0;pointer-events:none;transition:opacity .3s ease;}
+#err-toast.show{opacity:.95;}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;}
+}
+
+/* ---------- Mobile tightening ---------- */
+@media (max-width:480px){
+  #poem-card,#final-card{padding:1.5rem 1.3rem;}
+  .card-body{min-height:auto;}
+  .photos{gap:.8rem;}
+  .polaroid{width:112px;}
+}
+</style>
 </head>
 <body>
 
-  <!-- ============================================================
-       FOND ÉTOILÉ (Canvas plein écran, couche 0)
-       ============================================================ -->
-  <canvas id="sky" aria-hidden="true"></canvas>
+<canvas id="sky" aria-hidden="true"></canvas>
+<canvas id="num-canvas" aria-hidden="true"></canvas>
 
-  <!-- ============================================================
-       NÉBULEUSE / AURORES (couche 1, CSS flou pour la profondeur)
-       ============================================================ -->
-  <div class="nebula" aria-hidden="true">
-    <span class="aur a1"></span>
-    <span class="aur a2"></span>
-    <span class="aur a3"></span>
-  </div>
+<div class="nebula" aria-hidden="true">
+  <span class="aur a1"></span>
+  <span class="aur a2"></span>
+  <span class="aur a3"></span>
+</div>
 
-  <!-- Vignette cinématographique -->
-  <div id="vignette" aria-hidden="true"></div>
+<div id="vignette" aria-hidden="true"></div>
+<div id="pulse23" aria-hidden="true" style="display:none"></div>
+<div id="glowlayer" aria-hidden="true"></div>
 
-  <!-- Halo doré pulsant derrière le "23" -->
-  <div id="pulse23" aria-hidden="true"></div>
+<main id="stage">
 
-  <!-- Lueur dorée montante (strophe 2) -->
-  <div id="glowlayer" aria-hidden="true"></div>
+  <section id="screen-boot" class="screen">
+    <div class="boot-glow" aria-hidden="true"></div>
+    <p class="boot-text">Active le son pour une meilleure expérience, puis touche l'écran...</p>
+    <p class="boot-sub">Prête pour une histoire écrite dans le ciel ?</p>
+  </section>
 
-  <!-- ============================================================
-       SCÈNES
-       ============================================================ -->
-  <main id="stage">
+  <section id="screen-intro" class="screen hidden">
+    <div class="intro-wrap">
+      <h1 id="intro-line" class="intro-line"></h1>
+      <span class="caret off" id="caret" aria-hidden="true"></span>
+    </div>
+  </section>
 
-    <!-- ---------- PHASE 0 : Écran d'accueil / attente ---------- -->
-    <section id="screen-boot" class="screen">
-      <div class="boot-glow" aria-hidden="true"></div>
-      <p class="boot-text">Active le son pour une meilleure expérience, puis touche l'écran...</p>
-      <p class="boot-sub">Prête pour une histoire écrite dans le ciel ?</p>
-    </section>
+  <section id="screen-poem" class="screen hidden">
+    <div class="glass" id="poem-card">
+      <header class="card-head">
+        <span id="poem-count" class="count">Strophe 1 / 7</span>
+        <h2 id="poem-title"></h2>
+      </header>
 
-    <!-- ---------- PHASE 1 : Intro céleste (typewriter + ASHLEY) ---------- -->
-    <section id="screen-intro" class="screen hidden">
-      <div class="intro-wrap">
-        <h1 id="intro-line" class="intro-line"></h1>
-        <span class="caret off" id="caret" aria-hidden="true"></span>
+      <div id="poem-lines" class="card-body"></div>
+
+      <div class="flower" id="flower" aria-hidden="true">
+        <svg viewBox="0 0 120 120">
+          <g class="petals">
+            <ellipse cx="60" cy="30" rx="12" ry="26"/>
+            <ellipse cx="60" cy="30" rx="12" ry="26" transform="rotate(60 60 60)"/>
+            <ellipse cx="60" cy="30" rx="12" ry="26" transform="rotate(120 60 60)"/>
+            <ellipse cx="60" cy="30" rx="12" ry="26" transform="rotate(180 60 60)"/>
+            <ellipse cx="60" cy="30" rx="12" ry="26" transform="rotate(240 60 60)"/>
+            <ellipse cx="60" cy="30" rx="12" ry="26" transform="rotate(300 60 60)"/>
+          </g>
+          <circle class="core" cx="60" cy="60" r="9"/>
+        </svg>
       </div>
-    </section>
 
-    <!-- ---------- PHASE 2 : Le Poème ---------- -->
-    <section id="screen-poem" class="screen hidden">
-      <div class="card glass" id="poem-card">
-        <header class="card-head">
-          <span id="poem-count" class="count">Strophe 1 / 7</span>
-          <h2 id="poem-title"></h2>
-        </header>
+      <footer class="card-foot">
+        <button id="poem-next" class="btn" type="button">La suite <span class="btn-arrow">→</span></button>
+      </footer>
+    </div>
+  </section>
 
-        <div id="poem-lines" class="card-body"></div>
+  <section id="screen-final" class="screen hidden">
+    <div class="glass" id="final-card">
+      <p class="f-line">Il existe des cadeaux qui s'offrent avec les mains...</p>
+      <p class="f-line">...et d'autres qui s'offrent avec le temps que l'on consacre à les créer.</p>
+      <p class="f-line">Celui-ci fait partie de la deuxième catégorie.</p>
 
-        <!-- Fleur lumineuse (strophe 3, filigrane sous le texte) -->
-        <div class="flower" id="flower" aria-hidden="true">
-          <svg viewBox="0 0 120 120">
-            <g class="petals">
-              <ellipse cx="60" cy="30" rx="12" ry="26" />
-              <ellipse cx="60" cy="30" rx="12" ry="26" transform="rotate(60 60 60)" />
-              <ellipse cx="60" cy="30" rx="12" ry="26" transform="rotate(120 60 60)" />
-              <ellipse cx="60" cy="30" rx="12" ry="26" transform="rotate(180 60 60)" />
-              <ellipse cx="60" cy="30" rx="12" ry="26" transform="rotate(240 60 60)" />
-              <ellipse cx="60" cy="30" rx="12" ry="26" transform="rotate(300 60 60)" />
-            </g>
-            <circle class="core" cx="60" cy="60" r="9" />
-          </svg>
-        </div>
-
-        <footer class="card-foot">
-          <button id="poem-next" class="btn" type="button">La suite <span class="btn-arrow">→</span></button>
-        </footer>
+      <div class="photos">
+        <figure class="polaroid p1">
+          <img src="img/ash1.png" alt="Ashley, la lumière du jour" loading="lazy" onerror="this.style.display='none'">
+          <figcaption>La lumière du jour ✨</figcaption>
+        </figure>
+        <figure class="polaroid p2">
+          <img src="img/t_ash.png" alt="Ashley, l'ange discret" loading="lazy" onerror="this.style.display='none'">
+          <figcaption>L'ange de la petite taille 🌙</figcaption>
+        </figure>
       </div>
-    </section>
 
-    <!-- ---------- PHASE 3 : Le Final ---------- -->
-    <section id="screen-final" class="screen hidden">
-      <div class="final-card glass" id="final-card">
-        <p class="f-line">Il existe des cadeaux qui s'offrent avec les mains...</p>
-        <p class="f-line">...et d'autres qui s'offrent avec le temps que l'on consacre à les créer.</p>
-        <p class="f-line">Celui-ci fait partie de la deuxième catégorie.</p>
+      <p class="f-hero">Joyeux 23ᵉ anniversaire,<br>Ashley. ❤️</p>
+      <p class="f-sign">Née le 2 août · 23 ans aujourd'hui</p>
+      <p class="f-foot">Garde ce sourire pour aujourd'hui...<br>On se voit ce soir pour la suite. 💫</p>
 
-        <!-- Polaroids d'Ashley -->
-        <div class="photos">
-          <figure class="polaroid p1">
-            <img src="img/ash1.png" alt="Ashley, la lumière du jour" loading="lazy" width="960" height="1280">
-            <figcaption>La lumière du jour ✨</figcaption>
-          </figure>
-          <figure class="polaroid p2">
-            <img src="img/t_ash.png" alt="Ashley, l'ange discret" loading="lazy" width="756" height="1008">
-            <figcaption>L'ange de la petite taille 🌙</figcaption>
-          </figure>
-        </div>
+      <button id="replay" class="btn replay" type="button">↺ Revoir l'histoire</button>
+    </div>
+  </section>
+</main>
 
-        <p class="f-hero">Joyeux 23ᵉ anniversaire,<br>Ashley. ❤️</p>
-        <p class="f-sign">Née le 2 août · 23 ans aujourd'hui</p>
-        <p class="f-foot">Garde ce sourire pour aujourd'hui...<br>On se voit ce soir pour la suite. 💫</p>
+<div id="fallback-form" class="fallback-form hidden" aria-hidden="true"></div>
+<div id="hint" class="hidden" aria-hidden="true">Touche l'écran pour continuer ✨</div>
 
-        <button id="replay" class="btn replay" type="button">↺ Revoir l'histoire</button>
-      </div>
-    </section>
-  </main>
+<audio id="music" loop preload="auto" src="assets/audio/music.mp3"></audio>
+<div id="err-toast" aria-live="assertive"></div>
 
-  <!-- Overlay HTML de secours si l'animation réduite est active -->
-  <div id="fallback-form" class="fallback-form hidden" aria-hidden="true"></div>
+<script>
+(function(){
+"use strict";
 
-  <!-- Indice discret en bas d'écran -->
-  <div id="hint" class="hidden" aria-hidden="true">Touche l'écran pour continuer ✨</div>
+const REDUCED = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  <!-- ============================================================
-       AUDIO — Piste de fond (à placer dans assets/audio/music.mp3)
-       Un pad ambiant est généré en secours si le fichier manque.
-       ============================================================ -->
-  <audio id="music" loop preload="auto" src="assets/audio/music.mp3"></audio>
+/* ============================================================
+   STARFIELD (ambient, persistent)
+   ============================================================ */
+const skyCv = document.getElementById('sky');
+const skyCtx = skyCv.getContext('2d');
+let stars = [];
+function sizeSky(){
+  skyCv.width = window.innerWidth * devicePixelRatio;
+  skyCv.height = window.innerHeight * devicePixelRatio;
+  skyCv.style.width = window.innerWidth+'px';
+  skyCv.style.height = window.innerHeight+'px';
+  skyCtx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+  const count = Math.min(220, Math.floor(window.innerWidth*window.innerHeight/9000));
+  stars = Array.from({length:count},()=>({
+    x:Math.random()*window.innerWidth,
+    y:Math.random()*window.innerHeight,
+    r:Math.random()*1.3+.3,
+    tw:Math.random()*Math.PI*2,
+    sp:Math.random()*.02+.008
+  }));
+}
+window.addEventListener('resize', sizeSky);
+sizeSky();
 
-  <!-- Toast de diagnostic (visible uniquement en cas d'erreur) -->
-  <div id="err-toast" aria-live="assertive"></div>
+function drawSky(t){
+  skyCtx.clearRect(0,0,window.innerWidth,window.innerHeight);
+  for(const s of stars){
+    s.tw += s.sp;
+    const a = .35 + Math.sin(s.tw)*.35 + .3;
+    skyCtx.beginPath();
+    skyCtx.fillStyle = `rgba(245,239,225,${Math.max(0,Math.min(1,a))})`;
+    skyCtx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    skyCtx.fill();
+  }
+  if(!REDUCED) requestAnimationFrame(drawSky);
+}
+requestAnimationFrame(drawSky);
 
-  <script src="js/main.js"></script>
+/* ============================================================
+   PARTICLE TEXT (used for ASHLEY and 23)
+   ============================================================ */
+const numCv = document.getElementById('num-canvas');
+const numCtx = numCv.getContext('2d');
+function sizeNum(){
+  numCv.width = window.innerWidth*devicePixelRatio;
+  numCv.height = window.innerHeight*devicePixelRatio;
+  numCv.style.width = window.innerWidth+'px';
+  numCv.style.height = window.innerHeight+'px';
+  numCtx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+}
+window.addEventListener('resize', sizeNum);
+sizeNum();
+
+function sampleTextPoints(text, fontPx, fontFamily, step){
+  const off = document.createElement('canvas');
+  off.width = window.innerWidth; off.height = window.innerHeight;
+  const octx = off.getContext('2d');
+  octx.fillStyle = '#fff';
+  octx.font = `700 ${fontPx}px ${fontFamily}`;
+  octx.textAlign = 'center';
+  octx.textBaseline = 'middle';
+  octx.fillText(text, off.width/2, off.height/2);
+  const data = octx.getImageData(0,0,off.width,off.height).data;
+  const pts = [];
+  for(let y=0;y<off.height;y+=step){
+    for(let x=0;x<off.width;x+=step){
+      const idx = (y*off.width+x)*4+3;
+      if(data[idx] > 128) pts.push({x,y});
+    }
+  }
+  return pts;
+}
+
+function runParticleText(text, {fontPx, fontFamily, duration=2600, hold=1400, color='230,197,129', onDone}={}){
+  const points = sampleTextPoints(text, fontPx, fontFamily || "'Cinzel', serif", window.innerWidth<600?5:4);
+  const maxParticles = 1400;
+  const chosen = points.length > maxParticles
+    ? points.filter((_,i)=> i % Math.ceil(points.length/maxParticles) === 0)
+    : points;
+
+  const particles = chosen.map(p=>({
+    x: Math.random()*window.innerWidth,
+    y: window.innerHeight + Math.random()*200,
+    tx: p.x, ty: p.y,
+    r: Math.random()*1.6+.6,
+    delay: Math.random()*500
+  }));
+
+  const start = performance.now();
+  function frame(now){
+    const elapsed = now - start;
+    numCtx.clearRect(0,0,window.innerWidth,window.innerHeight);
+    let allArrived = true;
+    for(const pt of particles){
+      const localT = Math.max(0, Math.min(1, (elapsed - pt.delay) / duration));
+      if(localT < 1) allArrived = false;
+      const ease = 1 - Math.pow(1-localT, 3);
+      const x = pt.x + (pt.tx - pt.x) * ease;
+      const y = pt.y + (pt.ty - pt.y) * ease;
+      const jitter = elapsed > pt.delay + duration ? Math.sin((elapsed+pt.tx)/400)*.6 : 0;
+      numCtx.beginPath();
+      numCtx.fillStyle = `rgba(${color},${.55+ease*.45})`;
+      numCtx.shadowColor = `rgba(${color},.8)`;
+      numCtx.shadowBlur = 6;
+      numCtx.arc(x, y+jitter, pt.r, 0, Math.PI*2);
+      numCtx.fill();
+    }
+    if(elapsed < duration + hold + 400 && !(allArrived && elapsed > duration+hold)){
+      requestAnimationFrame(frame);
+    } else if(elapsed < duration + hold){
+      requestAnimationFrame(frame);
+    } else {
+      // fade out
+      fadeOutParticles();
+      if(onDone) onDone();
+    }
+  }
+
+  function fadeOutParticles(){
+    const fadeStart = performance.now();
+    function ff(now){
+      const e = now - fadeStart;
+      const a = Math.max(0, 1 - e/900);
+      numCtx.clearRect(0,0,window.innerWidth,window.innerHeight);
+      if(a <= 0) return;
+      for(const pt of particles){
+        numCtx.beginPath();
+        numCtx.fillStyle = `rgba(${color},${a})`;
+        numCtx.arc(pt.tx, pt.ty + Math.sin((now+pt.tx)/400)*.6, pt.r, 0, Math.PI*2);
+        numCtx.fill();
+      }
+      requestAnimationFrame(ff);
+    }
+    requestAnimationFrame(ff);
+  }
+
+  if(REDUCED){
+    numCtx.clearRect(0,0,window.innerWidth,window.innerHeight);
+    numCtx.textAlign='center'; numCtx.textBaseline='middle';
+    numCtx.fillStyle = `rgba(${color},1)`;
+    numCtx.font = `700 ${fontPx}px ${fontFamily || "'Cinzel', serif"}`;
+    numCtx.fillText(text, window.innerWidth/2, window.innerHeight/2);
+    setTimeout(()=>{ numCtx.clearRect(0,0,window.innerWidth,window.innerHeight); if(onDone) onDone(); }, hold);
+    return;
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ============================================================
+   AUDIO — file with graceful WebAudio pad fallback
+   ============================================================ */
+let audioCtx = null, padNodes = null;
+const musicEl = document.getElementById('music');
+
+function startFallbackPad(){
+  try{
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const now = audioCtx.currentTime;
+    const master = audioCtx.createGain();
+    master.gain.setValueAtTime(0, now);
+    master.gain.linearRampToValueAtTime(.05, now+3);
+    master.connect(audioCtx.destination);
+    const freqs = [196.00, 246.94, 293.66, 392.00];
+    const oscs = freqs.map(f=>{
+      const o = audioCtx.createOscillator();
+      o.type = 'sine'; o.frequency.value = f;
+      const g = audioCtx.createGain();
+      g.gain.value = .5;
+      o.connect(g); g.connect(master);
+      o.start();
+      return o;
+    });
+    padNodes = {master, oscs};
+  }catch(e){ /* audio unsupported — silent, experience still works */ }
+}
+
+function startMusic(){
+  musicEl.volume = 0;
+  const p = musicEl.play();
+  if(p && p.catch){
+    p.then(()=>{
+      let v = 0;
+      const iv = setInterval(()=>{
+        v = Math.min(.5, v+.02);
+        musicEl.volume = v;
+        if(v>=.5) clearInterval(iv);
+      }, 120);
+    }).catch(()=> startFallbackPad());
+  }
+}
+musicEl.addEventListener('error', startFallbackPad);
+
+/* ============================================================
+   SCREEN / PHASE MANAGEMENT
+   ============================================================ */
+const screens = {
+  boot: document.getElementById('screen-boot'),
+  intro: document.getElementById('screen-intro'),
+  poem: document.getElementById('screen-poem'),
+  final: document.getElementById('screen-final')
+};
+const hint = document.getElementById('hint');
+const glow = document.getElementById('glowlayer');
+
+function showScreen(name){
+  Object.values(screens).forEach(s=>s.classList.add('hidden'));
+  screens[name].classList.remove('hidden');
+}
+
+function toast(msg){
+  const t = document.getElementById('err-toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2600);
+}
+
+/* ---------- Phase 0 → 1 ---------- */
+let started = false;
+screens.boot.addEventListener('click', beginExperience);
+screens.boot.addEventListener('touchend', function(e){ e.preventDefault(); beginExperience(); }, {passive:false});
+
+function beginExperience(){
+  if(started) return;
+  started = true;
+  startMusic();
+  showScreen('intro');
+  runIntro();
+}
+
+/* ---------- Phase 1 : typewriter + name formation ---------- */
+const introLines = [
+  "Certaines personnes naissent un jour...",
+  "...d'autres donnent un peu plus de lumière au monde à la date de leur naissance.",
+  "__NAME__",
+  "Aujourd'hui... le ciel a décidé de raconter pourquoi il brille autant."
+];
+const introEl = document.getElementById('intro-line');
+const caretEl = document.getElementById('caret');
+
+function typeLine(text, speed=38){
+  return new Promise(resolve=>{
+    introEl.textContent = '';
+    caretEl.classList.remove('off');
+    let i = 0;
+    (function step(){
+      if(i <= text.length){
+        introEl.textContent = text.slice(0,i);
+        i++;
+        setTimeout(step, REDUCED ? 0 : speed);
+      } else {
+        resolve();
+      }
+    })();
+  });
+}
+function wait(ms){ return new Promise(r=>setTimeout(r, REDUCED ? 0 : ms)); }
+
+async function runIntro(){
+  await wait(400);
+  await typeLine(introLines[0]);
+  await wait(2000);
+  await typeLine(''); await wait(200);
+  await typeLine(introLines[1]);
+  await wait(2200);
+
+  // name formation
+  introEl.textContent = '';
+  caretEl.classList.add('off');
+  await wait(300);
+  await new Promise(resolve=>{
+    runParticleText('ASHLEY', {
+      fontPx: Math.min(140, window.innerWidth*.16),
+      duration: 2800, hold: 1600,
+      onDone: resolve
+    });
+  });
+
+  await wait(300);
+  await typeLine(introLines[3]);
+  await wait(2600);
+
+  showScreen('poem');
+  startPoem();
+}
+
+/* ---------- Phase 2 : poem ---------- */
+const poem = [
+  {
+    title: "L'Introduction Céleste",
+    lines: [
+      "À Ashley Julienne Wend Panga Sawadogo,",
+      "Cette nuit, les étoiles avaient un rendez-vous.",
+      "Elles parlaient d'une lumière qu'aucune constellation ne parvenait à égaler.",
+      "L'une disait : « Je crois qu'elle habite sur Terre. »",
+      "Une autre répondit : « Oui... et aujourd'hui est le jour où elle est arrivée parmi nous. »"
+    ],
+    fx: 'cross'
+  },
+  {
+    title: "La Douceur & Le Sourire",
+    lines: [
+      "Alors le vent s'est arrêté. La lune a souri.",
+      "Même le temps a ralenti, simplement pour contempler une nouvelle fois... Ashley.",
+      "Ton sourire... possède ce drôle de pouvoir de rassurer sans bruit, d'illuminer sans effort, et de rendre les journées un peu plus belles sans même s'en rendre compte."
+    ],
+    fx: 'glow'
+  },
+  {
+    title: "Le Regard, La Timidité & Les Fleurs Rares",
+    lines: [
+      "Ton regard, si discret, cache une douceur que peu de personnes savent réellement voir.",
+      "Ta timidité n'a jamais été une faiblesse. Elle ressemble davantage à ces fleurs rares qui ne s'ouvrent qu'aux personnes patientes."
+    ],
+    fx: 'flower'
+  },
+  {
+    title: "La Parenthèse Humoristique",
+    lines: [
+      "Ta respect... Ah... Parlons-en.",
+      "Même moi, tu continue de me vouvoyer.",
+      "Je commence sérieusement à croire qu'il faudra un __SPARK__traité diplomatique__/SPARK__ signé devant notaire pour espérer entendre un simple « tu ».",
+      "Et finalement... en y réfléchissant... cela te ressemble parfaitement. Une élégance qui ne cherche jamais à se faire remarquer."
+    ],
+    fx: 'spark'
+  },
+  {
+    title: "La Beauté Intérieure & La Petite Taille",
+    lines: [
+      "Ta écoute, ta calme, ta manière de toujours considérer les autres avant toi-même, racontent une beauté que les yeux seuls ne peuvent pas voir.",
+      "Puis il y a cette petite taille... qui donne presque l'impression qu'un __ANGE__ange__/ANGE__ a décidé, le temps d'une vie, d'emprunter quelques centimètres de moins pour passer inaperçu.",
+      "Pourtant... impossible. Les étoiles te repèrent toujours. Elles jalousent même parfois cette lumière qu'elles ne possèdent pas."
+    ],
+    fx: 'starnear'
+  },
+  {
+    title: "La Victoire",
+    lines: [
+      "Aujourd'hui, une nouvelle page s'ouvre.",
+      "Te voilà diplômée en Gestion. Une étape franchie. Une victoire méritée.",
+      "Et, je n'en doute pas une seule seconde, le début de nombreuses autres."
+    ],
+    fx: 'confetti'
+  },
+  {
+    title: "Les Vœux & La Conclusion",
+    lines: [
+      "Continuez d'avancer avec cette douceur, cette force tranquille, cette simplicité qui te rendent si unique.",
+      "Que cette nouvelle année te apporte encore plus de rires, encore plus de rêves, encore plus de souvenirs et surtout... tout le bonheur que ton cœur mérite.",
+      "Parce qu'aujourd'hui... ce n'est pas seulement ton anniversaire. C'est aussi le jour où le monde peut remercier d'avoir eu la chance de te accueillir.",
+      "Joyeux anniversaire, Ashley.",
+      "Continues simplement d'être toi. C'est déjà une très belle façon d'illuminer le monde. Et moi en particulier"
+    ],
+    fx: null
+  }
+];
+
+let stanza = 0;
+const poemCountEl = document.getElementById('poem-count');
+const poemTitleEl = document.getElementById('poem-title');
+const poemLinesEl = document.getElementById('poem-lines');
+const nextBtn = document.getElementById('poem-next');
+const flowerEl = document.getElementById('flower');
+
+function renderStanza(){
+  const s = poem[stanza];
+  poemCountEl.textContent = `Strophe ${stanza+1} / ${poem.length}`;
+  poemTitleEl.textContent = s.title;
+  poemLinesEl.innerHTML = '';
+  flowerEl.classList.remove('show');
+
+  s.lines.forEach((raw, i)=>{
+    const html = raw
+      .replace('__SPARK__', '<span class="spark-word">')
+      .replace('__/SPARK__', '</span>')
+      .replace('__ANGE__', '<span class="spark-word">')
+      .replace('__/ANGE__', '</span>');
+    const p = document.createElement('p');
+    p.innerHTML = html;
+    p.style.animationDelay = (i*0.35)+'s';
+    poemLinesEl.appendChild(p);
+  });
+
+  nextBtn.textContent = stanza === poem.length-1 ? 'Voir la suite ✨' : 'La suite';
+  runStanzaFx(s.fx);
+}
+
+function runStanzaFx(fx){
+  if(REDUCED || !fx) return;
+  if(fx === 'cross'){
+    for(let i=0;i<2;i++){
+      setTimeout(()=>{
+        const el = document.createElement('div');
+        el.className = 'cross-star';
+        const y = 10 + Math.random()*20;
+        el.style.left = (i===0?'8%':'85%');
+        el.style.top = y+'%';
+        el.style.setProperty('--dx', (i===0? '60vw':'-60vw'));
+        el.style.setProperty('--dy', '18vh');
+        el.style.background = 'transparent';
+        el.style.boxShadow = '0 0 8px 2px rgba(241,220,163,.9)';
+        el.style.width='60px';el.style.height='1px';
+        el.style.background='linear-gradient(90deg, rgba(241,220,163,.9), transparent)';
+        document.getElementById('screen-poem').appendChild(el);
+        requestAnimationFrame(()=>el.classList.add('run'));
+        setTimeout(()=>el.remove(), 2000);
+      }, i*500);
+    }
+  } else if(fx === 'glow'){
+    glow.classList.add('on');
+    setTimeout(()=>glow.classList.remove('on'), 6000);
+  } else if(fx === 'flower'){
+    requestAnimationFrame(()=> setTimeout(()=>flowerEl.classList.add('show'), 300));
+  } else if(fx === 'starnear'){
+    const el = document.createElement('span');
+    el.className = 'star-glide';
+    el.textContent = '✨';
+    el.style.left = '55%';
+    document.getElementById('poem-card').appendChild(el);
+    setTimeout(()=>el.remove(), 3200);
+  } else if(fx === 'confetti'){
+    for(let i=0;i<28;i++){
+      setTimeout(()=>{
+        const c = document.createElement('span');
+        c.textContent = '✦';
+        c.style.position='fixed';
+        c.style.left = Math.random()*100+'vw';
+        c.style.top = '-5vh';
+        c.style.color = 'rgba(230,197,129,.85)';
+        c.style.fontSize = (8+Math.random()*10)+'px';
+        c.style.zIndex = 6;
+        c.style.pointerEvents='none';
+        c.style.transition = `transform ${2.4+Math.random()*1.6}s linear, opacity 2.4s ease`;
+        document.body.appendChild(c);
+        requestAnimationFrame(()=>{
+          c.style.transform = `translateY(${window.innerHeight+60}px) rotate(${Math.random()*360}deg)`;
+          c.style.opacity = '0';
+        });
+        setTimeout(()=>c.remove(), 4200);
+      }, i*90);
+    }
+  }
+}
+
+function startPoem(){
+  stanza = 0;
+  renderStanza();
+}
+
+nextBtn.addEventListener('click', ()=>{
+  if(stanza < poem.length-1){
+    stanza++;
+    renderStanza();
+  } else {
+    runFinale();
+  }
+});
+
+/* ---------- Phase 3 : finale ---------- */
+async function runFinale(){
+  screens.poem.classList.add('hidden');
+  const pulse = document.getElementById('pulse23');
+  pulse.style.display = 'block';
+  await wait(300);
+  await new Promise(resolve=>{
+    runParticleText('23', {
+      fontPx: Math.min(340, window.innerWidth*.42),
+      fontFamily: "'Cinzel', serif",
+      duration: 3000, hold: 1800,
+      onDone: resolve
+    });
+  });
+  pulse.style.display = 'none';
+  showScreen('final');
+}
+
+document.getElementById('replay').addEventListener('click', ()=>{
+  numCtx.clearRect(0,0,window.innerWidth,window.innerHeight);
+  glow.classList.remove('on');
+  showScreen('boot');
+  started = false;
+});
+
+/* ---------- prefers-reduced-motion notice ---------- */
+if(REDUCED){
+  hint.classList.remove('hidden');
+  hint.textContent = "Mode animations réduites détecté — l'histoire reste intacte, en douceur.";
+  setTimeout(()=>hint.classList.add('hidden'), 4000);
+}
+
+})();
+</script>
 </body>
 </html>
