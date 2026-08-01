@@ -671,6 +671,26 @@ button {
   50%      { transform: translateX(-50%) translateY(-6px); }
 }
 
+/* Toast de diagnostic (n'apparaît qu'en cas d'erreur JS) */
+#err-toast {
+  position: fixed;
+  left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 58px);
+  transform: translateX(-50%);
+  z-index: 90;
+  max-width: 92vw;
+  font-size: 0.7rem;
+  line-height: 1.5;
+  color: #fecaca;
+  background: rgba(60, 10, 20, 0.78);
+  border: 1px solid rgba(254, 202, 202, 0.35);
+  border-radius: 12px;
+  padding: 0.55em 1em;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+#err-toast.show { opacity: 1; }
+
 /* ==========================================================================
    PETITS ÉCRANS — ajustements
    ========================================================================== */

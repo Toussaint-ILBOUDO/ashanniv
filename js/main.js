@@ -27,6 +27,22 @@ const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* Texte actuellement formé sur le canvas (pour re-échantillonnage au resize) */
 let currentForm = null;
 
+/* La strophe affichée déborde-t-elle de la carte ? (pour l'avance au scroll) */
+let poemOverflowing = false;
+
+/* Précharge la police Cinzel pour un échantillonnage fidèle, sans jamais bloquer */
+function preloadFonts(timeout = 2500) {
+  try {
+    if (document.fonts && typeof document.fonts.load === 'function') {
+      return Promise.race([
+        document.fonts.load('700 120px Cinzel').catch(() => {}),
+        new Promise((r) => setTimeout(r, timeout)),
+      ]);
+    }
+  } catch (e) { /* vieux navigateurs : pas de FontFaceSet */ }
+  return Promise.resolve();
+}
+
 /* Contrôleur de "skip" : permet d'accélérer le typewriter en un tap */
 function buildSkip() {
   const fns = new Set();
@@ -84,20 +100,24 @@ const Sound = (() => {
 
   /* Création / reprise du contexte — DOIT être appelé depuis un geste utilisateur */
   function unlock() {
-    if (!ctx) {
-      const AC = window.AudioContext || window.webkitAudioContext;
-      if (!AC) return;
-      ctx = new AC();
-      master = ctx.createGain();
-      master.gain.value = 1;
-      master.connect(ctx.destination);
-      // Pré-génération du buffer de bruit
-      const len = ctx.sampleRate * 2;
-      noiseBuf = ctx.createBuffer(1, len, ctx.sampleRate);
-      const data = noiseBuf.getChannelData(0);
-      for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+    try {
+      if (!ctx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return;
+        ctx = new AC();
+        master = ctx.createGain();
+        master.gain.value = 1;
+        master.connect(ctx.destination);
+        // Pré-génération du buffer de bruit
+        const len = ctx.sampleRate * 2;
+        noiseBuf = ctx.createBuffer(1, len, ctx.sampleRate);
+        const data = noiseBuf.getChannelData(0);
+        for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+      }
+      if (ctx.state === 'suspended') ctx.resume();
+    } catch (err) {
+      console.warn('AudioContext indisponible :', err);
     }
-    if (ctx.state === 'suspended') ctx.resume();
   }
 
   /* Enveloppe d'amplitude exponentielle (plop sans clic) */
@@ -238,7 +258,19 @@ const Sound = (() => {
     usingPad = false;
   }
 
-  return { unlock, chime, sparkle, shimmer, whoosh, pageTurn, diplomaChime, startMusic, fadeMusic, startPad, stopPad };
+  return (() => {
+    // EXPOSITION PROTÉGÉE : aucune erreur audio ne doit jamais bloquer
+    // le déroulement visuel de l'expérience.
+    const raw = { unlock, chime, sparkle, shimmer, whoosh, pageTurn, diplomaChime, startMusic, fadeMusic, startPad, stopPad };
+    const api = {};
+    Object.keys(raw).forEach((k) => {
+      api[k] = (...args) => {
+        try { return raw[k](...args); }
+        catch (err) { console.warn('WebAudio[' + k + ']', err); }
+      };
+    });
+    return api;
+  })();
 })();
 
 /* ==========================================================================
@@ -800,6 +832,11 @@ const Stage = (() => {
       el.poemLines.appendChild(p);
     });
 
+    // Détermine si la strophe déborde (utile pour l'avance au scroll)
+    requestAnimationFrame(() => {
+      poemOverflowing = el.poemLines.scrollHeight > el.poemLines.clientHeight + 4;
+    });
+
     // Applique les animations de fond associées à la strophe
     setTimeout(() => applyStropheAnim(st.anim), 140);
 
@@ -898,7 +935,7 @@ const Stage = (() => {
       el.fallback.textContent = 'ASHLEY';
       el.fallback.classList.remove('hidden');
     } else {
-      await document.fonts.load('700 120px Cinzel').catch(() => {});
+      await preloadFonts();
       const data = Sky.sampleText('ASHLEY', { font: 'Cinzel' });
       Sky.formText(data);
       currentForm = { text: 'ASHLEY', cfg: { font: 'Cinzel' } };
@@ -990,12 +1027,27 @@ const gesture = (() => {
   return { isTap: () => !moved };
 })();
 
-/* Tap global : avance dans le poème (uniquement après déblocage) */
-window.addEventListener('pointerup', (e) => {
+/* Tap global : avance dans le poème (pointerup + click pour compatibilité maximale) */
+const advancePoem = () => {
   if (!Stage.unlocked) return;
-  if (!gesture.isTap()) return;
   if (el.finalCard.classList.contains('show')) return;
   Stage.nextStrophe();
+};
+window.addEventListener('pointerup', (e) => {
+  if (!gesture.isTap()) return;
+  advancePoem();
+});
+window.addEventListener('click', () => {
+  if (!gesture.isTap()) return;
+  advancePoem();
+});
+
+/* Scroll doux : en atteignant le bas d'une strophe qui déborde → strophe suivante */
+el.poemLines.addEventListener('scroll', () => {
+  if (!Stage.unlocked || !poemOverflowing) return;
+  if (el.poemLines.scrollTop + el.poemLines.clientHeight >= el.poemLines.scrollHeight - 8) {
+    Stage.nextStrophe();
+  }
 });
 
 /* Bouton "La suite" */
@@ -1012,33 +1064,48 @@ let experienceStarted = false;
 let skipCtl = buildSkip();
 const introSkipListener = () => skipCtl.fire();
 
-/* Premier geste : déverrouille l'audio et démarre l'expérience */
+/* Premier geste : déverrouille l'audio et démarre l'expérience.
+   Toute erreur audio est attrapée : le visuel ne doit JAMAIS être bloqué. */
 async function startExperience() {
   if (experienceStarted) return;
   experienceStarted = true;
 
-  // 1. Audio débloqué par le geste utilisateur (politique Autoplay iOS/Android)
-  Sound.unlock();
-  Sound.whoosh(1.6, 0.14);
+  try {
+    Sound.unlock();
+    Sound.whoosh(1.6, 0.14);
+  } catch (e) { console.warn(e); }
+
   el.boot.classList.add('hidden');
-  Sound.startMusic();
 
-  // Secours : pad ambiant si la piste ne se charge pas
-  el.music.addEventListener('error', () => Sound.startPad());
-  if (el.music.readyState >= 2) Sound.stopPad();
+  try {
+    Sound.startMusic();
+    // Secours : pad ambiant si la piste ne se charge pas
+    el.music.addEventListener('error', () => Sound.startPad());
+    if (el.music.readyState >= 2) Sound.stopPad();
+  } catch (e) { console.warn('Musique de fond :', e); }
 
-  // 2. Lancement du scénario ; un tap accélère la saisie pendant l'intro
+  // Lancement du scénario ; un tap accélère la saisie pendant l'intro
   Sky.setRain(false);
   Stage.hint('Touche l’écran pour accélérer');
   window.addEventListener('pointerdown', introSkipListener);
-  await Stage.playIntro(skipCtl);
+  await Stage.playIntro(skipCtl).catch((err) => {
+    // Filet de sécurité : même si l'intro échoue, on amène jusqu'au poème
+    console.error('Intro interrompue :', err);
+    Sky.setRain(false);
+    Sky.clearForm();
+    Stage.beginPoem();
+  });
   window.removeEventListener('pointerdown', introSkipListener);
 }
 
-/* Tap sur l'écran d'accueil */
-el.boot.addEventListener('pointerdown', (e) => {
-  e.preventDefault();
-  startExperience();
+/* Tap sur l'écran d'accueil — multi-événements pour couvrir
+   pointer events (iOS 13+ / Android), touchstart et click (anciens navigateurs) */
+const bootStart = () => startExperience();
+['pointerdown', 'touchstart', 'click'].forEach((ev) => {
+  el.boot.addEventListener(ev, bootStart, { passive: true });
+});
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') startExperience();
 });
 
 /* ---------- Initialisation du moteur ---------- */
@@ -1058,4 +1125,22 @@ function init() {
     Sky.pointerPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
   }, { passive: true });
 }
+
+/* ---------- Diagnostic discret (ne s'affiche qu'en cas d'erreur) ---------- */
+(function debugToast() {
+  const host = document.getElementById('err-toast');
+  if (!host) return;
+  const show = (msg) => {
+    host.textContent = '⚠ ' + msg;
+    host.classList.add('show');
+    clearTimeout(host._t);
+    host._t = setTimeout(() => host.classList.remove('show'), 9000);
+  };
+  window.addEventListener('error', (e) => show(e.message || 'Erreur JavaScript'));
+  window.addEventListener('unhandledrejection', (e) => {
+    const r = e.reason;
+    show(r && r.message ? r.message : String(r));
+  });
+})();
+
 init();
