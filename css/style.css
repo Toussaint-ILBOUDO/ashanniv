@@ -1,0 +1,685 @@
+/* ==========================================================================
+   JOYEUX 23ᵉ ANNIVERSAIRE, ASHLEY ✨
+   Thème : nuit étoilée cinématographique — sombre, néons dorés, violet profond
+   100% responsive, optimisé mobile-first
+   ========================================================================== */
+
+/* ---------- Variables globales ---------- */
+:root {
+  --night: #030712;
+  --night-2: #0a1024;
+  --gold: #fef08a;
+  --gold-deep: #fcd34d;
+  --gold-soft: rgba(254, 240, 138, 0.55);
+  --violet: #a78bfa;
+  --violet-deep: #4c1d95;
+  --blue: #1e1b4b;
+  --ink: #e6e9f2;
+  --ink-dim: #9aa3b5;
+
+  --font-title: 'Cinzel', serif;
+  --font-poem: 'Cormorant Garamond', serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+
+  --glow-gold: 0 0 18px rgba(254, 240, 138, 0.35);
+  --glow-soft: 0 0 60px rgba(167, 139, 250, 0.18);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---------- Reset & base ---------- */
+*,
+*::before,
+*::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--night);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+body {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100dvh;
+}
+
+img { display: block; max-width: 100%; }
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+/* Respect des préférences d'animation (accessibilité) */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* ==========================================================================
+   FONDS — Canvas, nébuleuse, vignette
+   ========================================================================== */
+
+#sky {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  display: block;
+}
+
+/* Nébuleuses / aurores en couches floues pour la profondeur */
+.nebula {
+  position: fixed;
+  inset: -20%;
+  z-index: 1;
+  pointer-events: none;
+  filter: blur(70px);
+  opacity: 0.55;
+}
+.aur {
+  position: absolute;
+  border-radius: 50%;
+  mix-blend-mode: screen;
+}
+.aur.a1 {
+  width: 60vmax; height: 60vmax;
+  left: -20vmax; top: -18vmax;
+  background: radial-gradient(circle at 35% 35%, rgba(76, 29, 149, 0.5), transparent 60%);
+  animation: drift 26s ease-in-out infinite alternate;
+}
+.aur.a2 {
+  width: 55vmax; height: 55vmax;
+  right: -22vmax; bottom: -20vmax;
+  background: radial-gradient(circle at 60% 40%, rgba(30, 27, 75, 0.65), transparent 62%);
+  animation: drift 32s ease-in-out infinite alternate-reverse;
+}
+.aur.a3 {
+  width: 38vmax; height: 38vmax;
+  left: 30%; top: 42%;
+  background: radial-gradient(circle, rgba(167, 139, 250, 0.18), transparent 65%);
+  animation: drift 20s ease-in-out infinite alternate;
+}
+@keyframes drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(4vmax, -3vmax, 0) scale(1.12); }
+}
+
+/* Vignette cinématographique */
+#vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 42%, rgba(2, 4, 12, 0.55) 78%, rgba(1, 2, 8, 0.9) 100%);
+}
+
+/* Halo doré pulsant derrière le 23 */
+#pulse23 {
+  position: fixed;
+  left: 50%; top: 50%;
+  width: 44vmin; height: 44vmin;
+  transform: translate(-50%, -50%) scale(0.6);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(254, 240, 138, 0.32), rgba(252, 211, 77, 0.1) 45%, transparent 70%);
+  opacity: 0;
+  z-index: 3;
+  pointer-events: none;
+  filter: blur(8px);
+}
+#pulse23.show { animation: pulseNum 2.4s var(--ease-out) infinite; }
+
+@keyframes pulseNum {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.62); opacity: 0.5; }
+  50%      { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
+}
+
+/* Lueur dorée montante (strophe 2 : Le Sourire) */
+#glowlayer {
+  position: fixed;
+  left: 50%; bottom: -45%;
+  width: 130vmax; height: 90vmax;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at 50% 100%, rgba(252, 211, 77, 0.35), rgba(254, 240, 138, 0.08) 45%, transparent 70%);
+  opacity: 0;
+  z-index: 3;
+  pointer-events: none;
+  filter: blur(10px);
+}
+#glowlayer.show { animation: riseGlow 6s var(--ease-out) forwards; }
+
+@keyframes riseGlow {
+  0%   { transform: translateX(-50%) translateY(30%); opacity: 0; }
+  40%  { opacity: 0.85; }
+  100% { transform: translateX(-50%) translateY(0); opacity: 0.5; }
+}
+
+/* ==========================================================================
+   STAGE & SCÈNES
+   ========================================================================== */
+
+#stage {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: calc(env(safe-area-inset-top, 0px) + 20px) 22px calc(env(safe-area-inset-bottom, 0px) + 20px);
+  text-align: center;
+  transition: opacity 0.8s var(--ease-out), visibility 0.8s;
+}
+.screen.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   PHASE 0 — Écran d'accueil
+   ========================================================================== */
+
+.boot-glow {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 34vmin; height: 34vmin;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(254, 240, 138, 0.22), rgba(167, 139, 250, 0.08) 45%, transparent 70%);
+  filter: blur(6px);
+  animation: heartbeat 3.2s ease-in-out infinite;
+}
+@keyframes heartbeat {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.88); opacity: 0.55; }
+  14%      { transform: translate(-50%, -50%) scale(1.05); opacity: 0.95; }
+  28%      { transform: translate(-50%, -50%) scale(0.92); opacity: 0.6; }
+  42%      { transform: translate(-50%, -50%) scale(1.0); opacity: 0.85; }
+  70%      { transform: translate(-50%, -50%) scale(0.9); opacity: 0.6; }
+}
+
+.boot-text {
+  position: relative;
+  z-index: 1;
+  max-width: 20em;
+  font-size: clamp(0.85rem, 1.15vw + 0.6rem, 1.05rem);
+  font-weight: 300;
+  letter-spacing: 0.22em;
+  color: var(--ink-dim);
+  line-height: 1.9;
+  animation: fadeIn 1.6s ease 1.4s both;
+}
+.boot-sub {
+  position: relative;
+  z-index: 1;
+  margin-top: 1.6em;
+  font-size: clamp(0.7rem, 0.5vw + 0.55rem, 0.85rem);
+  font-weight: 300;
+  letter-spacing: 0.14em;
+  color: rgba(167, 139, 250, 0.8);
+  opacity: 0;
+  animation: fadeIn 2s ease 3s both;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ==========================================================================
+   PHASE 1 — Intro céleste
+   ========================================================================== */
+
+.intro-wrap {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.4em;
+  max-width: 92vw;
+}
+.intro-line {
+  font-family: var(--font-poem);
+  font-weight: 500;
+  font-size: clamp(1.35rem, 4.5vw + 0.6rem, 2.3rem);
+  line-height: 1.5;
+  color: var(--ink);
+  text-shadow: 0 0 24px rgba(254, 240, 138, 0.25);
+  min-height: 1.6em;
+  transition: opacity 0.8s var(--ease-out), transform 0.8s var(--ease-out);
+}
+.intro-line.fade-up {
+  opacity: 0;
+  transform: translateY(-26px);
+}
+.caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.05em;
+  margin-top: 0.28em;
+  background: var(--gold);
+  box-shadow: 0 0 10px var(--gold);
+  animation: caretBlink 0.85s step-end infinite;
+}
+.caret.off {
+  opacity: 0;
+  animation: none;
+}
+@keyframes caretBlink { 50% { opacity: 0; } }
+
+/* Texte de secours si l'animation réduite est activée */
+.fallback-form {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-title);
+  font-weight: 700;
+  color: var(--gold);
+  text-shadow: 0 0 30px rgba(254, 240, 138, 0.6);
+  font-size: clamp(3rem, 18vw, 9rem);
+  letter-spacing: 0.12em;
+  pointer-events: none;
+  animation: fallbackGlow 2.6s ease-in-out infinite;
+}
+.fallback-form.hidden { display: none; }
+@keyframes fallbackGlow {
+  0%, 100% { opacity: 0.75; text-shadow: 0 0 18px rgba(254, 240, 138, 0.4); }
+  50%      { opacity: 1;    text-shadow: 0 0 42px rgba(254, 240, 138, 0.85); }
+}
+
+/* ==========================================================================
+   PHASE 2 — Le Poème (Glassmorphism)
+   ========================================================================== */
+
+.glass {
+  background: linear-gradient(160deg, rgba(15, 20, 44, 0.55), rgba(8, 11, 26, 0.6));
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  backdrop-filter: blur(18px) saturate(150%);
+  border: 1px solid rgba(254, 240, 138, 0.16);
+  border-radius: 26px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.06), var(--glow-soft);
+}
+
+.card {
+  position: relative;
+  width: min(100%, 640px);
+  max-height: min(78dvh, 720px);
+  display: flex;
+  flex-direction: column;
+  padding: clamp(18px, 4vw, 34px);
+  overflow: hidden;
+  animation: cardIn 0.9s var(--ease-out) both;
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(36px) scale(0.96); filter: blur(6px); }
+  to   { opacity: 1; transform: none; filter: blur(0); }
+}
+
+.card-head { margin-bottom: clamp(10px, 2.5vw, 18px); }
+.count {
+  display: inline-block;
+  font-size: 0.66rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold-soft);
+  margin-bottom: 0.7em;
+}
+#poem-title {
+  font-family: var(--font-title);
+  font-size: clamp(1.05rem, 2.4vw + 0.55rem, 1.5rem);
+  font-weight: 600;
+  color: var(--gold);
+  text-shadow: var(--glow-gold);
+  letter-spacing: 0.05em;
+}
+
+.card-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(254, 240, 138, 0.25) transparent;
+}
+.card-body::-webkit-scrollbar { width: 4px; }
+.card-body::-webkit-scrollbar-thumb { background: rgba(254, 240, 138, 0.25); border-radius: 4px; }
+
+/* Une ligne du poème */
+.pl {
+  font-family: var(--font-poem);
+  font-size: clamp(1.12rem, 2.2vw + 0.6rem, 1.55rem);
+  font-weight: 500;
+  line-height: 1.65;
+  color: var(--ink);
+  opacity: 0;
+  transform: translateY(16px);
+  filter: blur(4px);
+  margin-bottom: 0.85em;
+  transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out), filter 0.7s var(--ease-out);
+  transition-delay: calc(var(--i, 0) * 140ms);
+}
+.pl.in {
+  opacity: 1;
+  transform: none;
+  filter: blur(0);
+}
+.pl.name {
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: clamp(1.35rem, 3vw + 0.6rem, 1.9rem);
+  color: transparent;
+  background: linear-gradient(120deg, #fffbe6, var(--gold-deep), #fff7cc);
+  -webkit-background-clip: text;
+  background-clip: text;
+  text-shadow: none;
+  filter: drop-shadow(0 0 14px rgba(254, 240, 138, 0.4));
+}
+.pl.hero {
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: clamp(1.4rem, 3.4vw + 0.6rem, 2rem);
+  color: var(--gold);
+  text-shadow: 0 0 22px rgba(254, 240, 138, 0.55);
+  margin-top: 0.3em;
+}
+
+/* Surbrillance amicale — "traité diplomatique" (strophe 4) */
+.hl {
+  position: relative;
+  color: var(--gold);
+  font-style: italic;
+  display: inline-block;
+}
+.hl::after {
+  content: '';
+  position: absolute;
+  left: -2%; right: -2%; bottom: 2px;
+  height: 0.28em;
+  background: linear-gradient(90deg, transparent, rgba(254, 240, 138, 0.5), transparent);
+  transform: scaleX(0);
+  transform-origin: center;
+  animation: underlineGlow 1.6s ease 0.4s forwards;
+}
+@keyframes underlineGlow { to { transform: scaleX(1); } }
+.hl .spark {
+  position: absolute;
+  top: -0.4em;
+  font-size: 0.6em;
+  color: var(--gold);
+  animation: sparkShine 1.1s ease-in-out infinite alternate;
+}
+@keyframes sparkShine { from { opacity: 0.25; transform: scale(0.8); } to { opacity: 1; transform: scale(1.25); } }
+
+/* Étoile qui descend se poser près du mot "ange" (strophe 5) */
+.ange {
+  position: relative;
+  display: inline-block;
+  color: var(--gold);
+}
+.ange-star {
+  position: absolute;
+  left: 50%; top: -26px;
+  font-size: 1.1em;
+  color: var(--gold);
+  text-shadow: 0 0 12px var(--gold);
+  transform: translate(-50%, -42px) scale(0.5);
+  opacity: 0;
+  pointer-events: none;
+}
+.ange-star.show {
+  animation: starDown 1.4s var(--ease-out) forwards;
+}
+@keyframes starDown {
+  0%   { transform: translate(-50%, -60px) scale(0.4); opacity: 0; }
+  60%  { transform: translate(-50%, 4px) scale(1.15); opacity: 1; }
+  100% { transform: translate(-50%, 0) scale(1); opacity: 1; }
+}
+.ange-star.show { animation: starDown 1.4s var(--ease-out) forwards, starGlow 1.4s ease-in-out 1.4s infinite; }
+@keyframes starGlow {
+  0%, 100% { text-shadow: 0 0 6px rgba(254, 240, 138, 0.6); opacity: 0.85; }
+  50%      { text-shadow: 0 0 18px rgba(254, 240, 138, 1); opacity: 1; }
+}
+
+/* Fleur lumineuse en filigrane (strophe 3) */
+.flower {
+  position: absolute;
+  left: 50%; bottom: -30px;
+  transform: translateX(-50%);
+  width: clamp(110px, 30vw, 170px);
+  opacity: 0;
+  pointer-events: none;
+  filter: drop-shadow(0 0 14px rgba(254, 240, 138, 0.35));
+  transition: opacity 1.2s ease;
+}
+.flower.show { opacity: 0.55; }
+.flower svg { width: 100%; height: auto; }
+.flower .petals ellipse {
+  fill: rgba(254, 240, 138, 0.85);
+  transform-origin: 60px 60px;
+  animation: bloom 3.4s var(--ease-out) infinite;
+}
+.flower .petals ellipse:nth-child(2) { animation-delay: -0.5s; }
+.flower .petals ellipse:nth-child(3) { animation-delay: -1s; }
+.flower .petals ellipse:nth-child(4) { animation-delay: -1.5s; }
+.flower .petals ellipse:nth-child(5) { animation-delay: -2s; }
+.flower .petals ellipse:nth-child(6) { animation-delay: -2.5s; }
+.flower .core {
+  fill: #fffbe6;
+  animation: corePulse 2.6s ease-in-out infinite;
+}
+@keyframes bloom {
+  0%, 100% { transform: rotate(0deg) scale(0.94); }
+  50%      { transform: rotate(6deg) scale(1.06); }
+}
+@keyframes corePulse {
+  0%, 100% { r: 8px; opacity: 0.85; }
+  50%      { r: 11px; opacity: 1; }
+}
+
+.card-foot { margin-top: clamp(12px, 2.5vw, 20px); }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  padding: 0.85em 1.7em;
+  border-radius: 999px;
+  background: linear-gradient(120deg, rgba(254, 240, 138, 0.14), rgba(167, 139, 250, 0.12));
+  border: 1px solid rgba(254, 240, 138, 0.35);
+  color: var(--gold);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  transition: transform 0.25s var(--ease-out), box-shadow 0.25s ease, background 0.25s ease;
+}
+.btn:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(120deg, rgba(254, 240, 138, 0.24), rgba(167, 139, 250, 0.2));
+  box-shadow: 0 8px 28px rgba(254, 240, 138, 0.18);
+}
+.btn:active { transform: scale(0.97); }
+.btn-arrow { display: inline-block; transition: transform 0.3s ease; }
+.btn:hover .btn-arrow { transform: translateX(4px); }
+
+/* ==========================================================================
+   PHASE 3 — Le Final
+   ========================================================================== */
+
+.final-card {
+  position: relative;
+  width: min(100%, 560px);
+  max-height: calc(100dvh - 30px);
+  overflow-y: auto;
+  padding: clamp(22px, 4.5vw, 40px) clamp(20px, 4vw, 38px);
+  opacity: 0;
+  transform: translateY(30px);
+  filter: blur(6px);
+  transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out), filter 0.9s var(--ease-out);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(254, 240, 138, 0.25) transparent;
+}
+.final-card.show {
+  opacity: 1;
+  transform: none;
+  filter: blur(0);
+}
+
+.f-line {
+  font-family: var(--font-poem);
+  font-size: clamp(1.1rem, 2.2vw + 0.6rem, 1.5rem);
+  font-weight: 500;
+  line-height: 1.6;
+  color: var(--ink);
+  margin-bottom: 0.8em;
+  opacity: 0;
+  transform: translateY(18px);
+  filter: blur(3px);
+  transition: opacity 0.8s var(--ease-out), transform 0.8s var(--ease-out), filter 0.8s var(--ease-out);
+  transition-delay: calc(var(--i, 0) * 180ms);
+}
+.final-card.show .f-line { opacity: 1; transform: none; filter: blur(0); }
+
+/* Polaroids */
+.photos {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: clamp(10px, 3vw, 20px);
+  margin: 1.4em 0 1.8em;
+}
+.polaroid {
+  flex: 0 1 46%;
+  max-width: 190px;
+  background: #fdfbf1;
+  padding: 8px 8px 12px;
+  border-radius: 6px;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  opacity: 0;
+  transform: translateY(30px) rotate(0deg);
+  filter: blur(3px);
+  transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out), filter 0.7s var(--ease-out);
+}
+.final-card.show .polaroid { opacity: 1; transform: none; filter: blur(0); }
+.polaroid.p1 { transform: translateY(30px) rotate(-4deg); transition-delay: 0.5s; }
+.polaroid.p2 { transform: translateY(34px) rotate(4deg); transition-delay: 0.75s; }
+.final-card.show .polaroid.p1 { transform: translateY(4px) rotate(-3deg); }
+.final-card.show .polaroid.p2 { transform: translateY(2px) rotate(3deg); }
+.polaroid:hover { transform: translateY(-4px) rotate(0deg) scale(1.03) !important; }
+.polaroid img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: 3px;
+}
+.polaroid figcaption {
+  padding-top: 9px;
+  font-family: var(--font-poem);
+  font-style: italic;
+  font-size: 0.8rem;
+  color: #555;
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+
+.f-hero {
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: clamp(1.5rem, 4.6vw + 0.7rem, 2.5rem);
+  line-height: 1.35;
+  color: transparent;
+  background: linear-gradient(120deg, #fffbe6, var(--gold-deep), #fff7cc);
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(0 0 22px rgba(254, 240, 138, 0.45));
+  margin: 0.2em 0 0.5em;
+  opacity: 0;
+  transform: scale(0.92);
+  transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
+  transition-delay: 1.1s;
+}
+.final-card.show .f-hero { opacity: 1; transform: scale(1); }
+
+.f-sign {
+  font-size: 0.72rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin-bottom: 1.4em;
+  opacity: 0;
+  transition: opacity 1s ease 1.5s;
+}
+.final-card.show .f-sign { opacity: 1; }
+
+.f-foot {
+  font-family: var(--font-poem);
+  font-style: italic;
+  font-size: clamp(1rem, 2vw + 0.5rem, 1.3rem);
+  line-height: 1.6;
+  color: var(--gold-soft);
+  margin-bottom: 1.6em;
+  opacity: 0;
+  transition: opacity 1s ease 1.8s;
+}
+.final-card.show .f-foot { opacity: 1; }
+
+.btn.replay {
+  font-size: 0.78rem;
+  opacity: 0;
+  transition: opacity 1s ease 2.2s, transform 0.25s var(--ease-out), background 0.25s ease;
+}
+.final-card.show .btn.replay { opacity: 1; }
+
+/* ==========================================================================
+   INDICE BAS D'ÉCRAN
+   ========================================================================== */
+
+#hint {
+  position: fixed;
+  left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
+  transform: translateX(-50%);
+  z-index: 60;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  padding: 0.6em 1.2em;
+  border-radius: 999px;
+  border: 1px solid rgba(254, 240, 138, 0.14);
+  background: rgba(8, 11, 26, 0.45);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  animation: hintFloat 2.4s ease-in-out infinite;
+  transition: opacity 0.6s ease;
+}
+#hint.hidden { opacity: 0; visibility: hidden; }
+@keyframes hintFloat {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%      { transform: translateX(-50%) translateY(-6px); }
+}
+
+/* ==========================================================================
+   PETITS ÉCRANS — ajustements
+   ========================================================================== */
+@media (max-width: 420px) {
+  .card { border-radius: 20px; }
+  .photos { gap: 8px; }
+  .polaroid { max-width: 150px; }
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  .card { max-height: calc(100dvh - 20px); }
+  .flower { display: none; }
+}

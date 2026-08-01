@@ -1,0 +1,24 @@
+MUSIQUE DE FOND — À PLACER ICI
+================================
+
+Dépose ton fichier de musique ici, nommé exactement :
+
+    assets/audio/music.mp3
+
+Recommandations :
+- « River Flows in You » (Yiruma) si tu possèdes une version licenciée,
+- ou toute piste douce et libre de droit équivalente (piano / ambient).
+- Formats supportés par tous les mobiles : MP3 (haut débit ~192kbps) ou M4A.
+  Si tu n'as qu'un .m4a, renomme le fichier en « music.mp3 » est possible
+  uniquement si le contenu est bien du MP3 ; sinon édite index.html ligne :
+  <audio id="music" ... src="assets/audio/music.mp3"> → src="assets/audio/music.m4a"
+
+IMPORTANT
+---------
+- Si le fichier est ABSENT, le site n'est PAS muet : un pad ambiant doux est
+  généré automatiquement en temps réel (Web Audio API) comme filet de secours.
+- Tous les effets sonores (carillons, whoosh, pages qui tournent, confettis)
+  sont générés en temps réel par le code : aucun fichier supplémentaire requis.
+
+Les icônes sont des emojis/SVG inline : aucun fichier d'icône à fournir.
+Les photos sont déjà utilisées : img/ash1.png et img/t_ash.png (polaroids finaux).

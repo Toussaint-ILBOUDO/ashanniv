@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#030712">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Une expérience céleste et interactive pour les 23 ans d'Ashley ✨">
+  <title>Joyeux 23ᵉ Anniversaire, Ashley ✨</title>
+
+  <!-- Favicon (étoile inline, aucun fichier nécessaire) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✨</text></svg>">
+
+  <!-- Typographies : Cinzel (titres), Cormorant Garamond (poème), Plus Jakarta Sans (texte) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ============================================================
+       FOND ÉTOILÉ (Canvas plein écran, couche 0)
+       ============================================================ -->
+  <canvas id="sky" aria-hidden="true"></canvas>
+
+  <!-- ============================================================
+       NÉBULEUSE / AURORES (couche 1, CSS flou pour la profondeur)
+       ============================================================ -->
+  <div class="nebula" aria-hidden="true">
+    <span class="aur a1"></span>
+    <span class="aur a2"></span>
+    <span class="aur a3"></span>
+  </div>
+
+  <!-- Vignette cinématographique -->
+  <div id="vignette" aria-hidden="true"></div>
+
+  <!-- Halo doré pulsant derrière le "23" -->
+  <div id="pulse23" aria-hidden="true"></div>
+
+  <!-- Lueur dorée montante (strophe 2) -->
+  <div id="glowlayer" aria-hidden="true"></div>
+
+  <!-- ============================================================
+       SCÈNES
+       ============================================================ -->
+  <main id="stage">
+
+    <!-- ---------- PHASE 0 : Écran d'accueil / attente ---------- -->
+    <section id="screen-boot" class="screen">
+      <div class="boot-glow" aria-hidden="true"></div>
+      <p class="boot-text">Active le son pour une meilleure expérience, puis touche l'écran...</p>
+      <p class="boot-sub">Prête pour une histoire écrite dans le ciel ?</p>
+    </section>
+
+    <!-- ---------- PHASE 1 : Intro céleste (typewriter + ASHLEY) ---------- -->
+    <section id="screen-intro" class="screen hidden">
+      <div class="intro-wrap">
+        <h1 id="intro-line" class="intro-line"></h1>
+        <span class="caret off" id="caret" aria-hidden="true"></span>
+      </div>
+    </section>
+
+    <!-- ---------- PHASE 2 : Le Poème ---------- -->
+    <section id="screen-poem" class="screen hidden">
+      <div class="card glass" id="poem-card">
+        <header class="card-head">
+          <span id="poem-count" class="count">Strophe 1 / 7</span>
+          <h2 id="poem-title"></h2>
+        </header>
+
+        <div id="poem-lines" class="card-body"></div>
+
+        <!-- Fleur lumineuse (strophe 3, filigrane sous le texte) -->
+        <div class="flower" id="flower" aria-hidden="true">
+          <svg viewBox="0 0 120 120">
+            <g class="petals">
+              <ellipse cx="60" cy="30" rx="12" ry="26" />
+              <ellipse cx="60" cy="30" rx="12" ry="26" transform="rotate(60 60 60)" />
+              <ellipse cx="60" cy="30" rx="12" ry="26" transform="rotate(120 60 60)" />
+              <ellipse cx="60" cy="30" rx="12" ry="26" transform="rotate(180 60 60)" />
+              <ellipse cx="60" cy="30" rx="12" ry="26" transform="rotate(240 60 60)" />
+              <ellipse cx="60" cy="30" rx="12" ry="26" transform="rotate(300 60 60)" />
+            </g>
+            <circle class="core" cx="60" cy="60" r="9" />
+          </svg>
+        </div>
+
+        <footer class="card-foot">
+          <button id="poem-next" class="btn" type="button">La suite <span class="btn-arrow">→</span></button>
+        </footer>
+      </div>
+    </section>
+
+    <!-- ---------- PHASE 3 : Le Final ---------- -->
+    <section id="screen-final" class="screen hidden">
+      <div class="final-card glass" id="final-card">
+        <p class="f-line">Il existe des cadeaux qui s'offrent avec les mains...</p>
+        <p class="f-line">...et d'autres qui s'offrent avec le temps que l'on consacre à les créer.</p>
+        <p class="f-line">Celui-ci fait partie de la deuxième catégorie.</p>
+
+        <!-- Polaroids d'Ashley -->
+        <div class="photos">
+          <figure class="polaroid p1">
+            <img src="img/ash1.png" alt="Ashley, la lumière du jour" loading="lazy" width="960" height="1280">
+            <figcaption>La lumière du jour ✨</figcaption>
+          </figure>
+          <figure class="polaroid p2">
+            <img src="img/t_ash.png" alt="Ashley, l'ange discret" loading="lazy" width="756" height="1008">
+            <figcaption>L'ange de la petite taille 🌙</figcaption>
+          </figure>
+        </div>
+
+        <p class="f-hero">Joyeux 23ᵉ anniversaire,<br>Ashley. ❤️</p>
+        <p class="f-sign">Née le 2 août · 23 ans aujourd'hui</p>
+        <p class="f-foot">Garde ce sourire pour aujourd'hui...<br>On se voit ce soir pour la suite. 💫</p>
+
+        <button id="replay" class="btn replay" type="button">↺ Revoir l'histoire</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Overlay HTML de secours si l'animation réduite est active -->
+  <div id="fallback-form" class="fallback-form hidden" aria-hidden="true"></div>
+
+  <!-- Indice discret en bas d'écran -->
+  <div id="hint" class="hidden" aria-hidden="true">Touche l'écran pour continuer ✨</div>
+
+  <!-- ============================================================
+       AUDIO — Piste de fond (à placer dans assets/audio/music.mp3)
+       Un pad ambiant est généré en secours si le fichier manque.
+       ============================================================ -->
+  <audio id="music" loop preload="auto" src="assets/audio/music.mp3"></audio>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
